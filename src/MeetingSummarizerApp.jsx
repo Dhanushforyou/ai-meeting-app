@@ -2,34 +2,34 @@ import React, { useState } from "react";
 
 function MeetingSummarizerApp() {
   const [file, setFile] = useState(null);
-  const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState("");
 
-  const handleUpload = async () => {
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleSummarize = async () => {
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64Audio = reader.result.split(',')[1]; // remove data: prefix
-      setLoading(true);
-      try {
-        const response = await fetch('await fetch('https://4d1d3e6e-4666-4dbc-99c4-132e3da00858-00-3gfogaupfmvi8.pike.replit.dev/summarize', {
-', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ transcript: base64Audio })
-        });
-        const data = await response.json();
-        setSummary(data.summary || data); // depending on backend
-      } catch (err) {
-        setSummary("Something went wrong.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    reader.readAsDataURL(file);
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("audio", file);
+
+      const response = await fetch('https://4d1d3e6e-4666-4dbc-99c4-132e3da00858-00-3gfogaupfmvi8.pike.replit.dev/summarize', {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setSummary(data.summary || "No summary received.");
+    } catch (error) {
+      console.error("Error summarizing meeting:", error);
+      setSummary("An error occurred while summarizing the meeting.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,22 +37,21 @@ function MeetingSummarizerApp() {
       <h1>AI Meeting Summarizer</h1>
       <p>Upload your audio and get summaries + action items here.</p>
 
-      <input type="file" accept="audio/*" onChange={(e) => setFile(e.target.files[0])} />
+      <input type="file" accept="audio/*" onChange={handleFileChange} />
       <br /><br />
-      <button onClick={handleUpload} disabled={!file || loading}>
+      <button onClick={handleSummarize} disabled={!file || loading}>
         {loading ? "Summarizing..." : "Summarize Meeting"}
       </button>
 
-      <div style={{ marginTop: "2rem" }}>
-        {summary && (
-          <>
-            <h2>Summary:</h2>
-            <pre>{summary}</pre>
-          </>
-        )}
-      </div>
+      {summary && (
+        <div style={{ marginTop: "2rem" }}>
+          <h3>Summary:</h3>
+          <p>{summary}</p>
+        </div>
+      )}
     </div>
   );
 }
 
 export default MeetingSummarizerApp;
+
