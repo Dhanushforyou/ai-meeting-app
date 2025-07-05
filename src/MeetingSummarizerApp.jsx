@@ -13,7 +13,8 @@ function MeetingSummarizerApp() {
       const base64Audio = reader.result.split(',')[1]; // remove data: prefix
       setLoading(true);
       try {
-        const response = await fetch('https://meeting-summarizer-backend.dr.replit.dev/summarize', {
+        const response = await fetch('await fetch('https://4d1d3e6e-4666-4dbc-99c4-132e3da00858-00-3gfogaupfmvi8.pike.replit.dev/summarize', {
+', {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
